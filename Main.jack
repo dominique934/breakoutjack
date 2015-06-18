@@ -1,0 +1,60 @@
+//Startup class
+//Does nothing but:
+//1. Calculating the seed (Depends on time passed until the player presses any key to start the game)
+//2. Start the game with the seed
+class Main {
+  function void main(){
+    var int randSeed, key;
+	var boolean showText;
+	var String showedText;
+	var Game game;
+	
+	let randSeed = 0;
+	let showText = false;
+	
+	do Output.moveCursor(2, 16);
+	do Output.printString("Breakout V0.1 by Hija for CSOS!");
+	do Output.moveCursor(10, 13);
+	do Output.printString("Please press any key to start the game!");
+	do Output.moveCursor(20, 7);
+	do Output.printString("- Thanks to Steve Wonzniak & Atari for the idea! -");
+	//Bad steve jobs!
+	
+    let key = Keyboard.keyPressed();
+	
+	while(key = 0){
+		if(randSeed = 32767){
+			let randSeed = -1;
+			do Output.moveCursor(10, 13);
+			if(showText){
+				let showedText = "Please press any key to start the game!";
+			}else{
+				let showedText = "                                       ";	
+			}
+			
+			do Output.printString(showedText);
+			do showedText.dispose();
+			let showText = ~showText;
+	
+		}
+		let randSeed = randSeed + 1;
+		let key = Keyboard.keyPressed();
+	}
+	do Sys.wait(200);
+	
+	//For Debugging:
+	 // do Output.printInt(key);
+	 // do Output.moveCursor(10, 1);
+	// do Output.printString("SEED: ");
+	// do Output.printInt(randSeed);
+	 // do Sys.wait(10000);
+	
+	
+	let game = Game.new(randSeed);
+	while(~game.doExit()){
+		do game.run();
+	}
+	return;
+  }
+
+}

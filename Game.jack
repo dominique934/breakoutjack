@@ -1,0 +1,232 @@
+//Main Game Class
+//Putting all the small classes together
+
+class Game{
+
+	field int points, anzBlocks, remainingBlocks, speed;
+	field boolean exit;
+	
+	field Schlaeger schlaeger;
+	field Ball ball;
+	field Array currentLevel;
+	field String pointsS;
+	field Random rand;
+	field Levelset levelset;
+	
+	constructor Game new (int randSeed) {
+		let speed = 4;
+		let pointsS = "Points: ";
+		let rand = Random.new(randSeed);
+		let levelset = Levelset.new(rand, this);
+
+		do initGame();
+		return this;
+	}
+
+	//Inits the main game
+	//(Needs to be called when a new game starts)
+	method void initGame(){
+		let schlaeger = Schlaeger.new(256,255);
+		let ball = Ball.new(200,200, rand);
+		let exit = false;
+		let points = 0;
+		do initBlocks();
+		return;
+	}
+	
+	//Init the blocks
+	method void initBlocks(){
+		var Array levelData;
+		let levelData = levelset.getFirstLevel();
+		do loadLevel(levelData);
+		return;
+	}
+	
+	//Loads a new Level
+	method void loadLevel(Array levelData){
+		var int pointsInLevel, i;
+		let pointsInLevel = levelData[0];
+		let anzBlocks = pointsInLevel;
+		let remainingBlocks = pointsInLevel;
+		let currentLevel = Array.new(pointsInLevel);
+		
+		let i = 0;
+		while(i < pointsInLevel){
+			let currentLevel[i] = levelData[(i + 1)];
+			let i = i+1;
+		}
+		do levelData.dispose();
+		//let currentLevel = levelset.getFirstLevel();
+		return;
+	}
+	
+	//For debugging only
+	method void increaseSpeed(){
+		if(speed > 1){
+			let speed = speed - 1;
+		}
+		return;
+	}
+	
+	//For debugging only
+	method void decreaseSpeed(){
+		if(speed < 15){
+			let speed = speed + 1;
+		}
+		return;
+	}
+	
+	//Runs the main game
+	method void run(){
+		var int i, steps;
+		var char input;
+		//var Block tmpBlock;
+		
+		let i = -1;
+		while(~exit){
+		
+			let steps = Math.divide(42, speed);
+			
+			do calculateLogic();
+	
+			if(i = steps){ //Draw just every x-gameticks instead of everytime
+				do drawObjects();
+				let i = -1;
+			}
+			let i = i + 1;
+		
+			let input = Keyboard.keyPressed();
+			if(input = 140){ //ESC
+				let exit = true;
+				do Sys.wait(300);
+				do gameOver();
+			}
+			if(input = 130){ //Arrow-Left
+				do schlaeger.moveLeft();
+			}
+			if(input = 132){ //Arrow-Right
+				do schlaeger.moveRight();
+			}
+			if(input = 43){ //Plus
+				do skipLevel();
+				do Sys.wait(500);
+			}
+			// if(input = 45){ //Minus
+				// do decreaseSpeed();
+			// }
+			
+			//Pseudo wait
+			do Sys.wait(speed); //Decrease => Game faster; Increase => Game slower
+		}
+		return;
+	}
+	
+	//Gets called when game is over
+	method void gameOver(){
+		var char input;
+		
+		//do Memory.deAlloc(blocks);
+		
+		do Screen.clearScreen();
+		do Output.moveCursor(2,28);
+		do Output.printString("Game over");
+		do Output.moveCursor(9,15);
+		do Output.printString("Sorry, dude, but it's over. You failed.");
+		do Output.moveCursor(10,20);
+		do Output.printString("But hey - you got ");
+		if((points > 1) | (points = 0)){
+			do Output.printInt(points);
+			do Output.printString(" points!");
+		} else{
+			do Output.printString("one point!");
+		}
+		
+		do Output.moveCursor(20,15);
+		do Output.printString("Please press [ENTER] to continue!");
+		do Output.moveCursor(21,14);
+		do Output.printString("Or you press [ESC] to exit the game!");
+		let input = Keyboard.keyPressed();
+		while(~((input = 128) | (input = 140))){
+			let input = Keyboard.keyPressed();
+			do Sys.wait(10);
+		}
+		if(input = 128){
+			do initGame();
+			do run();
+		}else{
+			do Sys.halt();
+		}
+		return;
+	}
+	
+	//Draws every elemnet on the screen!
+	method void drawObjects(){
+		var int i;
+		var Block tmpBlock;
+		
+		do Screen.clearScreen();
+			
+		do Output.moveCursor(0,0);
+		do Output.printString(pointsS);
+		do Output.printInt(points);
+		
+		do schlaeger.drawSchlaeger();
+		
+		do ball.drawBall();
+		
+		let i = 0;
+		while(i < anzBlocks){
+			let tmpBlock = currentLevel[i];
+			do tmpBlock.drawBlock();
+			let i = i+1;
+		}
+		return;
+	}
+	
+	//Calculates the game logic
+	method void calculateLogic(){
+		var int i;
+		var Block tmpBlock;
+		
+		do schlaeger.schlaegerCollisionCheck(ball);
+		
+		do ball.moveBall();
+		
+		if(ball.gameOver()){
+			do gameOver();
+		}
+		
+		let i = 0;
+		while(i < anzBlocks){
+			let tmpBlock = currentLevel[i];
+			do tmpBlock.doCollisionCheck(ball);
+			let i = i+1;
+		}
+		return;
+	}
+	
+	//Increases the score
+	method void increaseScore(){	
+		var Array levelData;
+		let points = points + 1;
+		let remainingBlocks = remainingBlocks - 1;
+		if(remainingBlocks = 0){		
+			let levelData = levelset.getNewLevel();
+			do loadLevel(levelData);
+		}
+		return;
+	}
+	
+	//Debugging only
+	method void skipLevel(){
+		var Array levelData;
+		let levelData = levelset.getNewLevel();
+		do loadLevel(levelData);
+		return;
+	}
+	
+	method boolean doExit(){
+		return exit;
+	}
+
+}

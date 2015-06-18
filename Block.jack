@@ -1,0 +1,96 @@
+//Class for a block/brick
+class Block{
+
+	field int x, y, length, height;
+	field boolean isActive;
+	field Game game;
+	
+	constructor Block new (int xArg, int yArg, Game gameArg){
+		let x = xArg;
+		let y = yArg;
+		let game = gameArg;
+		let length = 50;
+		let height = 20;
+		let isActive = true;
+		return this;
+	}
+	
+	//Draws the block on screen
+	method void drawBlock(){
+		if(~isActive){
+			return;
+		}
+		//Little trick:
+		//Draw first a completly black rectangle
+		//And then fill it up with a white rectangle => Brick :)
+		do Screen.drawRectangle(x, y, x + length, y + height);
+		do Screen.setColor(false);
+		do Screen.drawRectangle(x+2, y+2, (x-2) + length, (y-2) + height);
+		do Screen.setColor(true);
+		return;
+	}
+	
+	//Checks whether the Ball collides with the Block
+	method void doCollisionCheck(Ball ball){
+		var int ballX, ballY, ballRadius;
+	
+		if(~isActive){
+			return;
+		}
+	
+		let ballX = ball.getX();
+		let ballY = ball.getY();
+		let ballRadius = ball.getRadius();
+		
+		//Vier Kollisionen sind moeglich:
+		//Von links, rechts, oben, unten
+
+		if((((ballY+ballRadius) - 1) > y) & (~(((ballY-ballRadius)-1) > (y+height)))){
+			//Seitenkollision
+			if(((ballX+ballRadius) = x) | ((ballX-ballRadius) = (x+length))){
+				do ball.simpleSideCollision();
+				do game.increaseScore();
+				let isActive = false;
+			}else{
+			//Kollision von oben/unten
+				if(((ballX+ballRadius) > x) & ((ballX-ballRadius) < ((x+length) + 1))){
+					do ball.simpleDirectCollision();
+					do game.increaseScore();
+					let isActive = false;
+				}
+			
+			}
+		}
+		
+		return;
+	}
+	
+	//Enables the block again (when it was disabled before)
+	//This happens whenever a new game starts
+	method void enable(){
+		let isActive = true;
+		return;
+	}
+	
+	//Disposes the block (Not really needed)
+	method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+	
+	method int getHeight(){
+		return height;
+	}
+	
+	method int getWidth(){
+		return length;
+	}
+	
+	method int getX(){
+		return x;
+	}
+	
+	method int getY(){
+		return y;
+	}
+}

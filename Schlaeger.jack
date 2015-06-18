@@ -1,0 +1,89 @@
+//Schlaeger (= Bat) class
+//Responsible for everything with the bat
+class Schlaeger{
+
+	field int x, y, length, height;
+	
+	constructor Schlaeger new (int xPos, int yPos){
+		let length = 60; //There is no final, is it?
+		let height = 10;
+		if((xPos-length < 0)){
+			let xPos = length + 1;
+		}
+		if((yPos-height < 0)){
+			let yPos = height + 1;
+		}
+		let x = (xPos-length);
+		let y = (yPos-height);
+		return this;
+	}
+	
+	//Draws the bat on the screen
+	method void drawSchlaeger(){
+		do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + length, y + height);
+		return;
+	}
+	
+	//Moves the bat right when possible
+	method void moveRight(){
+		if((x+length) = 511){
+			return;
+		}
+		let x = x+1;
+		return;
+	}
+	
+	//Moves the bat left when possible
+	method void moveLeft(){
+		if(x = 0){
+			return;
+		}
+		let x = x-1;
+		return;
+	}
+	
+	method int getX(){
+		return x;
+	}
+	
+	method int getY(){
+		return y;
+	}
+	
+	method int getLength(){
+		return length;
+	}
+	
+	//Checks if ball collides with bat
+	//(See ball.jack as well!)
+	method void schlaegerCollisionCheck(Ball ball){
+		var int ballX, ballY, ballRadius, schlaegerX, schlaegerY, schlaegerLength, third;
+		
+		let ballX = ball.getX();
+		let ballY = ball.getY();
+		let ballRadius = ball.getRadius();
+		
+		let schlaegerLength = length;
+		let third = (schlaegerLength / 3); //Divide bat in 3 parts (left = left, middle = up, right = right)
+		
+		if(((ballY+ballRadius)+1) > y){
+			if(((ballX-ballRadius)+1) > x){
+				if(ballX < (x+(1*third))){
+					do ball.collideWithSchlaeger(1);
+					return;
+				}
+				if(ballX < (x+(2*third))){
+					do ball.collideWithSchlaeger(2);
+					return;
+				}
+				if(((ballX-ballRadius)-1) < (x+(3*third))){
+					do ball.collideWithSchlaeger(3);
+					return;
+				}
+			}
+		}
+
+		return;
+	}
+}

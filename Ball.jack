@@ -1,0 +1,144 @@
+class Ball{
+
+	field int x, y, radius;
+	field boolean down, left, right, lastVertical;
+	field Random rand;
+	
+	constructor Ball new (int xArg, int yArg, Random randArg){
+		let radius = 5; //Maybe change later for "special effects?"
+		let rand = randArg;
+		let right = true;
+		let x = xArg;
+		let y = yArg;
+		let down = false;
+
+		return this;
+	}
+	
+	//Draws the ball on the screen
+	method void drawBall(){
+		do Screen.drawCircle(x,y,radius);
+		return;
+	}
+	
+	//Called by the Game-Class: Move the ball
+	method void moveBall(){
+		do calculateMovement();
+		return;
+	}
+	
+	//Determines whether the game is over (=> Ball fell out of world)
+	method boolean gameOver(){
+		if(y+(radius*2) > 256){
+			return true;
+		}
+		return false;
+	}
+	
+	//Calculates the movement of the ball
+	method void calculateMovement(){
+		var int tmpY; //Later used
+		
+		//Collide with ceiling
+		if(y-(radius*2) < 0){
+			let down = true;
+		}
+		
+		//Collide with left side
+		if((x-radius) < 1){
+			let left = false;
+			let right = true;
+		}
+		
+		//Collide with right side
+		if((x+(2*radius)) > 512){
+			let right = false;
+			let left = true;
+		}
+		
+		//Movement otherwise
+		if(down){
+			let tmpY = y + 1;
+		}else{
+			let tmpY = y - 1;
+		}
+		
+		if(right | left){
+			if(lastVertical){
+				let lastVertical = false;
+				if(right){
+					let x = x + 1;
+				}else{
+					let x = x - 1;
+				}
+			}else{
+				let lastVertical = true;
+				let y = tmpY;
+			}				
+		}else{
+				let y = tmpY;
+		}
+		
+		if(down){
+			if(rand.nextInt(15) = 14){ //Some random ball movement!
+				let y = y + 1;
+			}
+		}
+		return;
+	}
+	
+	method int getX(){
+		return x;
+	}
+	
+	method int getY(){
+		return y;
+	}
+	
+	method int getRadius(){
+		return radius;
+	}
+	
+	//Called from Schlaeger-Class when the ball intersects with the schlaeger
+	//1 = left side of the schlaeger
+	//2 = middle of the schlaeger
+	//3 = right side of the schlaeger
+	//schlaeger = bat
+	method void collideWithSchlaeger(int section){
+		let down = false;
+		
+		if((right & (section = 3) | left & (section = 1)) ){
+			return;
+		}
+		
+		if(section = 1){
+			let left = true;
+			let right = false;
+		}
+		if(section = 2){
+			let left = false;
+			let right = false;
+		}
+		if(section = 3){
+			let left = false;
+			let right = true;
+		}
+		return;
+	}
+	
+	//Called when hit from the side
+	//(Changes movement direction)
+	method void simpleSideCollision(){
+		let left = ~left;
+		let right = ~right;
+		return;
+	}
+	
+	//Called when hit from above/below
+	//(Changes movement direction)
+	method void simpleDirectCollision(){
+		let down = ~down;
+		return;
+	}
+
+}

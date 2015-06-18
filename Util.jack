@@ -1,0 +1,12 @@
+class Util{
+
+	//Calculates the modulo
+	function int mod(int a, int b){
+		var int m, rest;
+		let m = Math.divide(a,b);
+		let rest = a - (m * b);
+		return rest;
+	}
+
+
+}
