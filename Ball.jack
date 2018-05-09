@@ -1,6 +1,6 @@
 class Ball{
 
-	field int x, y, radius;
+	field int x, y, radius;sss
 	field boolean down, left, right, lastVertical;
 	field Random rand;
 	
